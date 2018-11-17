@@ -2,6 +2,7 @@
 
 import rw_csv
 import statistics
+import time
 
 def alg_dsatur(graph):
 	# graph format: [n][0] value of the node
@@ -112,10 +113,12 @@ def print_stats(graph, n_colors, runtime):
 
 def main():
 	graph = rw_csv.read_data()
+	t0 = time.perf_counter()
 	coloring = alg_dsatur(graph)
+	time_elapsed = time.perf_counter() - t0
+	print_stats(graph, max(coloring), time_elapsed)
 	print(coloring)
-	print(validate_coloring(graph, coloring))	
-	print_stats(graph, 100, 100)
+	print(validate_coloring(graph, coloring))
 	#print(graph)
 
 
