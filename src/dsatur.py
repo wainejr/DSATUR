@@ -25,26 +25,26 @@ def alg_dsatur(graph):
 			maximum_degree = degrees[index]
 
 	# updates saturation
-	for index in range(1, degrees[index_maximum_degree]+1):
-		saturation_degrees[graph[index_maximum_degree][index]-1] += 1
+	for neighbour_node in range(1, degrees[index_maximum_degree]+1):
+		saturation_degrees[graph[index_maximum_degree][neighbour_node]-1] += 1
 
 	# coloring first node
 	coloring[index_maximum_degree] = color_counter
 	uncolored_nodes.remove(index_maximum_degree)
 	
-	#while(len(uncolored_nodes) > 0):
-	i = 0	
-	while(i < 1):
+	while(len(uncolored_nodes) > 0):
 		max_satur_degree = -1
+
 		# gets maximum saturation degree
 		for index in uncolored_nodes:
 			if(saturation_degrees[index] > max_satur_degree):
 				max_satur_degree = saturation_degrees[index]
+
 		# gets list of indexes with max saturation degree 		
 		indexes_max_satur_degree = [index for index in uncolored_nodes if saturation_degrees[index] == max_satur_degree] 		
-		# print(max_satur_degree)
-		# print(indexes_max_satur_degree)
+	
 		coloring_index = indexes_max_satur_degree[0]
+
 		# if there are more than one node with the max saturation, picks the one with higher degree		
 		if(len(indexes_max_satur_degree) > 1):
 			maximum_degree = -1
@@ -53,32 +53,42 @@ def alg_dsatur(graph):
 				if(degrees[index] > maximum_degree):
 					coloring_index = index
 					maximum_degree = degrees[index]
-		print(coloring_index)
-		# print(degrees)
 		
 		# Coloring node
-		for number_color in range(1, color_counter+2):
+		for number_color in range(1, color_counter+1):
 			same_color = False
 			for neighbour_node in graph[coloring_index]:
 				if(coloring[neighbour_node-1] == number_color):
 					same_color = True
 					break
 			if(not(same_color)):
-				print("aqui", color_counter)
 				coloring[coloring_index] = number_color
 		
-		# if number_color is a new color 
-		if(coloring[coloring_index] > color_counter):
-			color_counter += 1				 
+		# if node was not colored with existing colors 
+		if(coloring[coloring_index] == 0):
+			color_counter += 1
+			coloring[coloring_index] = color_counter	 
 		
-		print(coloring)
-		print(color_counter)
-		i += 1
+		# remove node from uncolored set		
+		uncolored_nodes.remove(coloring_index)		
+		
+		# update degree of saturation
+		for neighbour_node in range(1, len(graph[coloring_index])):
+			saturation_degrees[graph[coloring_index][neighbour_node] - 1] += 1
+	
 	# print(graph)
 	# print(degrees)
 	# print(index_maximum_degree)
 	# print(saturation_degrees)
 	# print(coloring)
+	return coloring
+
+def validate_coloring(graph, coloring):
+	for node_index in range(len(graph)):
+		for neighbour_index in range(1, len(graph[node_index])):
+			if(coloring[node_index] == coloring[graph[node_index][neighbour_index]-1]):
+				return False
+	return True
 
 def print_stats(graph, n_colors, runtime):
 	n_nodes = len(graph)
@@ -102,7 +112,9 @@ def print_stats(graph, n_colors, runtime):
 
 def main():
 	graph = rw_csv.read_data()
-	alg_dsatur(graph)
+	coloring = alg_dsatur(graph)
+	print(coloring)
+	print(validate_coloring(graph, coloring))	
 	print_stats(graph, 100, 100)
 	#print(graph)
 
