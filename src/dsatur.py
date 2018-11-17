@@ -117,6 +117,7 @@ def main():
 	coloring = alg_dsatur(graph)
 	time_elapsed = time.perf_counter() - t0
 	print_stats(graph, max(coloring), time_elapsed)
+	rw_csv.write_colors(coloring)
 	print(coloring)
 	print(validate_coloring(graph, coloring))
 	#print(graph)
