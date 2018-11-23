@@ -1,0 +1,8 @@
+No. nos: 		20
+No. arestas: 		180
+Minimo (grau): 		4
+Maximo (grau): 		13
+Media (grau): 		9
+Desvio padrao (grau): 	2.3841582427170787
+No. cores: 		5
+Run time (s): 		0.0005806729996038484

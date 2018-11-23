@@ -4,10 +4,30 @@ import rw_csv
 import statistics
 import time
 
+def get_neighbours_matrix(graph):
+	neighbours = graph
+	# deletes the first element of the list, leaving only the neighbours
+	for i in range(0, len(graph)):
+		del neighbours[i][0]
+	return neighbours
+
+
+def get_saturation_degree(node_index, neighbours, coloring):
+	colors_list = set()
+	# add the color of the neighbours of the node to the set
+	for node in neighbours[node_index]:
+		color = coloring[node-1]
+		if(color != 0):
+			colors_list.add(color)
+	# returns the number of colors	
+	return len(colors_list)
+		
+
 def alg_dsatur(graph):
-	# graph format: [n][0] value of the node
-	# 							[n][n] node's neighbours
+	# [n][0] value of the node
+	# [n][n] node's neighbours
 	degrees = list()
+	neighbours = get_neighbours_matrix(graph) 
 	saturation_degrees = [0] * len(graph)
 	coloring = [0] * len(graph)
 	uncolored_nodes = set(range(len(graph)))
@@ -25,13 +45,13 @@ def alg_dsatur(graph):
 			index_maximum_degree = index
 			maximum_degree = degrees[index]
 
-	# updates saturation
-	for neighbour_node in range(1, degrees[index_maximum_degree]+1):
-		saturation_degrees[graph[index_maximum_degree][neighbour_node]-1] += 1
-
 	# coloring first node
 	coloring[index_maximum_degree] = color_counter
 	uncolored_nodes.remove(index_maximum_degree)
+
+	# updates saturation
+	for neighbour_node in neighbours[index_maximum_degree]:
+		saturation_degrees[neighbour_node-1] = 	get_saturation_degree(neighbour_node-1, neighbours, coloring)
 	
 	while(len(uncolored_nodes) > 0):
 		max_satur_degree = -1
@@ -74,15 +94,15 @@ def alg_dsatur(graph):
 		uncolored_nodes.remove(coloring_index)		
 		
 		# update degree of saturation
-		for neighbour_node in range(1, len(graph[coloring_index])):
-			saturation_degrees[graph[coloring_index][neighbour_node] - 1] += 1
+		for neighbour_node in neighbours[coloring_index]:
+			saturation_degrees[neighbour_node-1] = 	get_saturation_degree(neighbour_node-1, neighbours, coloring)
 	
-	# print(graph)
-	# print(degrees)
-	# print(index_maximum_degree)
-	# print(saturation_degrees)
-	# print(coloring)
+	print("Graph", graph)
+	print("Degrees", degrees)
+	print("Sat degrees", saturation_degrees)
+	print("Coloring", coloring)
 	return coloring
+
 
 def validate_coloring(graph, coloring):
 	for node_index in range(len(graph)):
@@ -91,7 +111,8 @@ def validate_coloring(graph, coloring):
 				return False
 	return True
 
-def print_stats(graph, n_colors, runtime):
+
+'''def print_stats(graph, n_colors, runtime):
 	n_nodes = len(graph)
 	degrees = list()	
 	for node in graph:
@@ -110,19 +131,16 @@ def print_stats(graph, n_colors, runtime):
 	print("Std deviation: \t\t", std_dev_degrees)
 	print("Number of colors: \t", n_colors)
 	print("Runtime: \t\t", runtime)	
+'''
 
 def main():
 	graph = rw_csv.read_data()
 	t0 = time.perf_counter()
 	coloring = alg_dsatur(graph)
 	time_elapsed = time.perf_counter() - t0
-	print_stats(graph, max(coloring), time_elapsed)
+	#print_stats(graph, max(coloring), time_elapsed)
 	rw_csv.write_colors(coloring)
-	print(coloring)
-	print(validate_coloring(graph, coloring))
-	#print(graph)
-
-
+	rw_csv.write_data(graph, max(coloring), time_elapsed)
 
 if __name__ == "__main__":
 	main()
