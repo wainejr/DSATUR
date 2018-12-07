@@ -4,143 +4,122 @@ import rw_csv
 import statistics
 import time
 
-def get_neighbours_matrix(graph):
-	neighbours = graph
-	# deletes the first element of the list, leaving only the neighbours
-	for i in range(0, len(graph)):
-		del neighbours[i][0]
-	return neighbours
+def get_vizinhos_matriz(grafo):
+	vizinhos = grafo
+	# deleta o primeiro elemento de cada linha da matrix, deixando apenas os vizinhos
+	for i in range(0, len(grafo)):
+		del vizinhos[i][0]
+	return vizinhos
 
 
-def get_saturation_degree(node_index, neighbours, coloring):
-	colors_list = set()
-	# add the color of the neighbours of the node to the set
-	for node in neighbours[node_index]:
-		color = coloring[node-1]
-		if(color != 0):
-			colors_list.add(color)
-	# returns the number of colors	
-	return len(colors_list)
+def get_grau_saturacao(vertice_indice, vizinhos, coloracao):
+	lista_cores = set()
+	# adiciona as cores dos vizinhos a lista de cores
+	for vertice in vizinhos[vertice_indice]:
+		cor = coloracao[vertice-1]
+		if(cor != 0):
+			lista_cores.add(cor)
+	# retorna o grau de saturacao (numero de cores diferentes dos vizinhos)
+	return len(lista_cores)
 		
 
-def alg_dsatur(graph):
-	# [n][0] value of the node
-	# [n][n] node's neighbours
-	degrees = list()
-	neighbours = get_neighbours_matrix(graph) 
-	saturation_degrees = [0] * len(graph)
-	coloring = [0] * len(graph)
-	uncolored_nodes = set(range(len(graph)))
-	index_maximun_degree = 0
-	maximum_degree = 0
-	color_counter = 1
+def alg_dsatur(grafo):
+	# [n][0] valor do vertice
+	# [n][n] vertices vizinhos
+	graus = list()
+	vizinhos = get_vizinhos_matriz(grafo) 
+	grau_saturacao = [0] * len(grafo)
+	coloracao = [0] * len(grafo)
+	vertices_descoloridos = set(range(len(grafo)))
+	indice_grau_maximo = 0
+	grau_maximo = 0
+	contador_cores = 1
 
-	# fill nodes degrees 
-	for node in graph:
-		degrees.append(len(node)-1)
+	# preenche os graus 
+	for vertice in grafo:
+		graus.append(len(vertice)-1)
 
-	# finds node with maximum degree	
-	for index in range(len(degrees)):
-		if(degrees[index] > maximum_degree):
-			index_maximum_degree = index
-			maximum_degree = degrees[index]
+	# encontra o vertice com maior grau	
+	for indice in range(len(graus)):
+		if(graus[indice] > grau_maximo):
+			indice_grau_maximo = indice
+			grau_maximo = graus[indice]
 
-	# coloring first node
-	coloring[index_maximum_degree] = color_counter
-	uncolored_nodes.remove(index_maximum_degree)
+	# colore primeiro vertice
+	coloracao[indice_grau_maximo] = contador_cores
+	vertices_descoloridos.remove(indice_grau_maximo)
 
-	# updates saturation
-	for neighbour_node in neighbours[index_maximum_degree]:
-		saturation_degrees[neighbour_node-1] = 	get_saturation_degree(neighbour_node-1, neighbours, coloring)
+	# atualiza saturacao
+	for vertice_vizinho in vizinhos[indice_grau_maximo]:
+		grau_saturacao[vertice_vizinho-1] = get_grau_saturacao(vertice_vizinho-1, vizinhos, coloracao)
 	
-	while(len(uncolored_nodes) > 0):
-		max_satur_degree = -1
+	while(len(vertices_descoloridos) > 0):
+		maximo_grau_sat = -1
 
-		# gets maximum saturation degree
-		for index in uncolored_nodes:
-			if(saturation_degrees[index] > max_satur_degree):
-				max_satur_degree = saturation_degrees[index]
+		# encontra maximo grau de saturacao
+		for indice in vertices_descoloridos:
+			if(grau_saturacao[indice] > maximo_grau_sat):
+				maximo_grau_sat = grau_saturacao[indice]
 
-		# gets list of indexes with max saturation degree 		
-		indexes_max_satur_degree = [index for index in uncolored_nodes if saturation_degrees[index] == max_satur_degree] 		
+		# lista de indices com grau maximo de saturacao		
+		indices_maximo_grau_sat = [indice for indice in vertices_descoloridos if grau_saturacao[indice] == maximo_grau_sat] 		
 	
-		coloring_index = indexes_max_satur_degree[0]
+		indice_coloracao = indices_maximo_grau_sat[0]
 
-		# if there are more than one node with the max saturation, picks the one with higher degree		
-		if(len(indexes_max_satur_degree) > 1):
-			maximum_degree = -1
-			# finds node with maximum degree
-			for index in indexes_max_satur_degree:
-				if(degrees[index] > maximum_degree):
-					coloring_index = index
-					maximum_degree = degrees[index]
+		# caso haja mais de um indice com grau maximo de saturacao, escolhe o de maior grau para colorir		
+		if(len(indices_maximo_grau_sat) > 1):
+			grau_maximo = -1
+			# finds vertice with maximo grau
+			for indice in indices_maximo_grau_sat:
+				if(graus[indice] > grau_maximo):
+					indice_coloracao = indice
+					grau_maximo = graus[indice]
 		
-		# Coloring node
-		for number_color in range(1, color_counter+1):
-			same_color = False
-			for neighbour_node in graph[coloring_index]:
-				if(coloring[neighbour_node-1] == number_color):
-					same_color = True
+		# colore vertice
+		for num_cor in range(1, contador_cores+1):
+			cor_igual = False
+			for vertice_vizinho in grafo[indice_coloracao]:
+				if(coloracao[vertice_vizinho-1] == num_cor):
+					cor_igual = True
 					break
-			if(not(same_color)):
-				coloring[coloring_index] = number_color
+			if(not(cor_igual)):
+				coloracao[indice_coloracao] = num_cor
 		
-		# if node was not colored with existing colors 
-		if(coloring[coloring_index] == 0):
-			color_counter += 1
-			coloring[coloring_index] = color_counter	 
+		# se o vertice nao foi colorido com as cores existentes, colore com uma nova cor
+		if(coloracao[indice_coloracao] == 0):
+			contador_cores += 1
+			coloracao[indice_coloracao] = contador_cores	 
 		
-		# remove node from uncolored set		
-		uncolored_nodes.remove(coloring_index)		
+		# remove vertice dos descoloridos	
+		vertices_descoloridos.remove(indice_coloracao)		
 		
-		# update degree of saturation
-		for neighbour_node in neighbours[coloring_index]:
-			saturation_degrees[neighbour_node-1] = 	get_saturation_degree(neighbour_node-1, neighbours, coloring)
+		# atualiza grau de saturacao
+		for vertice_vizinho in vizinhos[indice_coloracao]:
+			grau_saturacao[vertice_vizinho-1] = get_grau_saturacao(vertice_vizinho-1, vizinhos, coloracao)
 	
-	print("Graph", graph)
-	print("Degrees", degrees)
-	print("Sat degrees", saturation_degrees)
-	print("Coloring", coloring)
-	return coloring
+	#print("grafo", grafo)
+	#print("graus", graus)
+	#print("Sat graus", grau_saturacao)
+	#print("coloracao", coloracao)
+	return coloracao
 
 
-def validate_coloring(graph, coloring):
-	for node_index in range(len(graph)):
-		for neighbour_index in range(1, len(graph[node_index])):
-			if(coloring[node_index] == coloring[graph[node_index][neighbour_index]-1]):
+def validate_coloracao(grafo, coloracao):
+	for vertice_indice in range(len(grafo)):
+		for vizinho_indice in range(1, len(grafo[vertice_indice])):
+			if(coloracao[vertice_indice] == coloracao[grafo[vertice_indice][vizinho_indice]-1]):
 				return False
 	return True
 
 
-'''def print_stats(graph, n_colors, runtime):
-	n_nodes = len(graph)
-	degrees = list()	
-	for node in graph:
-		degrees.append(len(node)-1)
-	n_edges = sum(degrees)
-	min_degree = min(degrees)
-	max_degree = max(degrees)
-	mean_degrees = statistics.mean(degrees)
-	std_dev_degrees = statistics.stdev(degrees)
-	
-	print("Number of nodes: \t", n_nodes)
-	print("Number of edges: \t", n_edges)
-	print("Min. Degree: \t\t", min_degree)
-	print("Max. Degree: \t\t", max_degree)
-	print("Mean: \t\t\t", mean_degrees)	
-	print("Std deviation: \t\t", std_dev_degrees)
-	print("Number of colors: \t", n_colors)
-	print("Runtime: \t\t", runtime)	
-'''
-
 def main():
-	graph = rw_csv.read_data()
+	grafo = rw_csv.read_data()
 	t0 = time.perf_counter()
-	coloring = alg_dsatur(graph)
-	time_elapsed = time.perf_counter() - t0
-	#print_stats(graph, max(coloring), time_elapsed)
-	rw_csv.write_colors(coloring)
-	rw_csv.write_data(graph, max(coloring), time_elapsed)
+	coloracao = alg_dsatur(grafo)
+	tempo = time.perf_counter() - t0
+
+	rw_csv.write_colors(coloracao)
+	rw_csv.write_data(grafo, max(coloracao), tempo)
 
 if __name__ == "__main__":
 	main()

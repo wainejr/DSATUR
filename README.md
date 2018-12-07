@@ -1,3 +1,3 @@
 # DSATUR
 
-Coloring algorithm DSATUR 
+Algoritmo de coloração DSATUR
