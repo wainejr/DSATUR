@@ -4,7 +4,7 @@ import rw_csv
 import statistics
 import time
 
-def get_vizinhos_matriz(grafo):
+def get_matriz_vizinhos(grafo):
 	vizinhos = grafo
 	# deleta o primeiro elemento de cada linha da matrix, deixando apenas os vizinhos
 	for i in range(0, len(grafo)):
@@ -12,10 +12,10 @@ def get_vizinhos_matriz(grafo):
 	return vizinhos
 
 
-def get_grau_saturacao(vertice_indice, vizinhos, coloracao):
+def get_grau_saturacao(indice_vertice, vizinhos, coloracao):
 	lista_cores = set()
 	# adiciona as cores dos vizinhos a lista de cores
-	for vertice in vizinhos[vertice_indice]:
+	for vertice in vizinhos[indice_vertice]:
 		cor = coloracao[vertice-1]
 		if(cor != 0):
 			lista_cores.add(cor)
@@ -27,7 +27,7 @@ def alg_dsatur(grafo):
 	# [n][0] valor do vertice
 	# [n][n] vertices vizinhos
 	graus = list()
-	vizinhos = get_vizinhos_matriz(grafo) 
+	vizinhos = get_matriz_vizinhos(grafo) 
 	grau_saturacao = [0] * len(grafo)
 	coloracao = [0] * len(grafo)
 	vertices_descoloridos = set(range(len(grafo)))
@@ -105,9 +105,9 @@ def alg_dsatur(grafo):
 
 
 def validate_coloracao(grafo, coloracao):
-	for vertice_indice in range(len(grafo)):
-		for vizinho_indice in range(1, len(grafo[vertice_indice])):
-			if(coloracao[vertice_indice] == coloracao[grafo[vertice_indice][vizinho_indice]-1]):
+	for indice_vertice in range(len(grafo)):
+		for indice_vizinho in range(1, len(grafo[indice_vertice])):
+			if(coloracao[indice_vertice] == coloracao[grafo[indice_vertice][indice_vizinho]-1]):
 				return False
 	return True
 
